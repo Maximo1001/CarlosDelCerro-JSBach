@@ -1,0 +1,78 @@
+#!/bin/bash
+
+######################################################################
+###  Configurar Guardar
+######################################################################
+
+fnc_wan_config_guardar_dhcp() {
+	echo fnc_wan_config_guardar_dhcp
+
+	MSG="Error: opcio desconeguda falta nom de la interfaç"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	WAN_INT=$1
+	shift
+	 
+	(
+		echo "WAN_MODE=dhcp"
+		echo "WAN_INT=$WAN_INT"
+	) > "$DIR_WAN/wan.conf"
+	
+}
+
+fnc_wan_config_guardar_manual() {
+	echo fnc_wan_config_guardar_manual
+	
+	MSG="Error: opcio desconeguda falta int ip/masc p.e dns"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 4 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	WAN_INT=$1
+	WAN_IP_MASC=$2
+	WAN_PE=$3
+	WAN_DNS=$4
+	 
+	(
+		echo "WAN_MODE=manual"
+		echo "WAN_INT=$WAN_INT"
+		echo "WAN_IP_MASC=$WAN_IP_MASC"
+		echo "WAN_PE=$WAN_PE"
+		echo "WAN_DNS=$WAN_DNS"
+	) > "$DIR_WAN/wan.conf"
+}
+
+######################################################################
+###  Configurar Mostrar
+######################################################################
+
+fnc_wan_config_mostrar_parametres() {
+	echo fnc_wan_config_mostrar_parametres
+
+	echo "$WAN_MODE $WAN_INT $WAN_IP_MASC $WAN_PE $WAN_DNS"
+}
+
+fnc_wan_config_mostrar_interfaces() {
+	echo fnc_wan_config_mostrar_interfaces
+
+	for interf in /sys/class/net/*; do
+		nom=$(basename "$interf")
+
+		# Excloure loopback
+		[[ "$nom" == "lo" ]] && continue
+
+		# Excloure interfícies Wi-Fi
+		[[ -d "$interf/wireless" ]] && continue
+
+		echo "$nom"
+    	done
+	
+}

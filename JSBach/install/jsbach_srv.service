@@ -1,0 +1,11 @@
+[Unit]
+Description=JSBACH CLI TCP Service
+
+[Service]
+ExecStart=/usr/bin/socat TCP-LISTEN:1234,bind=*,reuseaddr,fork EXEC:/usr/local/JSBach/system/jsbach_cli
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+# cp /usr/local/JSBach/install/jsbach_srv.service /etc/systemd/system; chmod 644 /etc/systemd/system/jsbach_srv.service ; chown root:root /etc/systemd/system/jsbach_srv.service

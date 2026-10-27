@@ -1,0 +1,19 @@
+#!/bin/bash
+
+######################################################################
+###  Estat
+######################################################################
+fnc_enrutar_estat() {
+	echo fnc_enrutar_estat
+
+	if [ "$(sysctl -n net.ipv4.ip_forward)" -eq 1 ] \
+	&& iptables -t nat -C POSTROUTING -o enp6s0 -j MASQUERADE 2>/dev/null \
+	&& ip -4 addr show dev enp1s0f1 | grep -q "10.0.1.1/24"; then
+		ESTAT="activat"
+	else
+		ESTAT="desactivat"
+	fi
+
+	echo "ESTAT=\"$ESTAT\"" > enrutar.conf
+	echo "Router: $ESTAT"
+}

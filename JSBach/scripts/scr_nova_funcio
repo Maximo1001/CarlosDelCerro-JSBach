@@ -1,0 +1,50 @@
+#!/bin/bash
+
+if [ $# -ne 1 ]; then
+	echo "Ús: $0 <nom_nou>"
+	exit 1
+fi
+
+NOU_NOM="$1"
+NOU_NOM_UPPER=$(echo "$NOU_NOM" | tr '[:lower:]' '[:upper:]')
+
+PLANTILLA="model"
+
+# Copiar la carpeta
+cp -R "$PLANTILLA" "$NOU_NOM"
+
+# Substituir el contingut dels fitxers
+find "$NOU_NOM" -type f -exec sed -i \
+	-e "s/model/$NOU_NOM/g" \
+	-e "s/MODEL/$NOU_NOM_UPPER/g" \
+	{} +
+
+#Afegir a jsbach_cli
+sed -i "/#nova funcio/i\\
+\t\"$NOU_NOM\")\\
+\t\t\"\$DIR_$NOU_NOM_UPPER/$NOU_NOM\" \$Arguments\\
+\t\t;;
+" ../system/jsbach_cli
+sed -i "s/]\"#nou_comand/ $NOU_NOM ]\"#nou_comand/" ../system/jsbach_cli
+
+
+#Afegir a variables
+sed -i "/#nou dir/i\\
+DIR_$NOU_NOM_UPPER=\"\$DIR_SCRIPTS/$NOU_NOM\"
+" ./utils/variables.conf
+
+# Renombrar fitxers i directoris
+find "$NOU_NOM" -depth | while read -r item; do
+	base=$(basename "$item")
+	dir=$(dirname "$item")
+
+	nou_base="$base"
+	nou_base="${nou_base//MODEL/$NOU_NOM_UPPER}"
+	nou_base="${nou_base//model/$NOU_NOM}"
+
+	if [ "$base" != "$nou_base" ]; then
+		mv "$item" "$dir/$nou_base"
+	fi
+done
+
+echo "Funcio creada a '$NOU_NOM'"

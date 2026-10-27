@@ -1,0 +1,138 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/variables.conf"
+
+######################################################################
+###  Configurar
+######################################################################
+
+fnc_model_configurar() {
+	echo fnc_model_configurar
+	MSG="Error: opcio desconeguda falta [ guardar | mostrar ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+
+	case "$OPCIO_1" in
+	guardar)
+		fnc_model_config_guardar $@
+		;;
+	mostrar)
+		fnc_model_config_mostrar $@
+		;;
+	*)
+		echo "$MSG"
+		;;
+	esac
+}
+
+######################################################################
+###  Configurar Guardar
+######################################################################
+
+fnc_model_config_guardar() {
+	echo fnc_model_config_guardar
+	MSG="Error: opcio desconeguda falta [ opcio1 | opcio2 ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+	# Fem switch IFW_PEr executar la funció que toca
+	case "$OPCIO_1" in
+	opcio1)
+		source "$DIR_MODEL/model_config"
+		fnc_model_config_guardar_opcio1 $@
+		;;
+	opcio2)
+		source "$DIR_MODEL/model_config"
+		fnc_model_config_guardar_opcio2 $@
+		;;
+	*)
+		echo "$MSG"
+		;;
+	esac
+}
+
+######################################################################
+###  Configurar Mostrar
+######################################################################
+
+fnc_model_config_mostrar() {
+	MSG="Error: opcio desconeguda falta [ opcio1 | opcio2 ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+	# Fem switch IFW_PEr executar la funció que toca
+	case "$OPCIO_1" in
+	opcio1)
+		source "$DIR_MODEL/model_config"
+		fnc_model_config_mostrar_opcio1 $@
+		;;
+	opcio2)
+		source "$DIR_MODEL/model_config"
+		fnc_model_config_mostrar_opcio2 $@
+		;;
+	*)
+		echo "$MSG"
+		;;
+	esac
+}
+
+######################################################################
+###  MAIN
+######################################################################
+
+source "$DIR_BD/lan_bd"
+fnc_lan_inici_bd
+
+source "$DIR_MODEL/model.conf"
+
+MSG="Error: opcio desconeguda falta [ iniciar | aturar | configurar | estat ]"
+
+# Comprovem que hi hagi almenys un argument
+if [ $# -lt 1 ]; then
+	echo "$MSG"
+	exit 1
+fi
+
+OPCIO_1=$1
+shift
+
+case "$OPCIO_1" in
+iniciar)
+	source "$DIR_MODEL/model_iniciar_aturar"
+	fnc_model_iniciar $@
+	;;
+aturar)
+	source "$DIR_MODEL/model_iniciar_aturar"
+	fnc_model_aturar $@
+	;;
+configurar)
+	fnc_model_configurar $@
+	;;
+estat)
+	source "$DIR_MODEL/model_estat"
+	fnc_model_estat $@
+	;;
+*)
+	echo "$MSG"
+	;;
+esac

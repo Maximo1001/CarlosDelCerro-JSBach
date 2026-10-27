@@ -1,0 +1,32 @@
+#!/bin/bash
+
+######################################################################
+###  Iniciar
+######################################################################
+fnc_enrutar_iniciar() {
+	echo fnc_enrutar_iniciar
+	if ["$ESTAT" = "activat"]; then
+		echo "Ya está active"
+	else
+		ip a a 10.0.1./24 dev enp1s0f1
+		ip l s dev enp1s0f1 up
+		sysctl -w net.ipv4.ip_forward=1
+		iptables -t nat -A POSTROUTING -o enp6s0 -j MASQUERADE
+	fi
+	
+}
+
+######################################################################
+###  Aturar
+######################################################################
+fnc_enrutar_aturar() {
+	echo fnc_enrutar_aturar
+	if ["$ESTAT" = "desactivat"]; then
+		echo "Ya está inactive"
+	else
+		iptables -t nat -D POSTROUTING -o enp6s0 -j MASQUERADE
+		sysctl -w net.ipv4.ip_forward=0
+		ip a d 10.0.1.1/24 dev enp1s0f1
+		ip l s dev enps0f1 down
+	fi
+}

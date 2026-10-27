@@ -1,0 +1,26 @@
+#!/bin/bash
+
+HISTFILE="$HOME/.jbs_cli_history"
+
+# Carrega historial existent
+history -r "$HISTFILE" 2>/dev/null
+
+PROMPT=$(echo "prompt" | nc 127.0.0.1 1234)
+
+while true; do
+	read -e -p "$PROMPT> " cmd
+
+	if [ -z "$cmd" ]; then
+		cmd="help"
+	fi
+
+	# Guarda en historial (evita duplicats consecutius si vols)
+	history -s "$cmd"
+	history -a "$HISTFILE"
+
+	if [ "$cmd" = "eixir" ] || [ "$cmd" = "exit" ] || [ "$cmd" = "quit" ]; then
+		break
+	fi
+
+	echo "$cmd" | nc 127.0.0.1 1234
+done

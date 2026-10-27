@@ -1,0 +1,59 @@
+#!/bin/bash
+
+######################################################################
+###  Iniciar
+######################################################################
+fnc_wan_iniciar() {
+	echo fnc_wan_iniciar
+	
+	case "$WAN_MODE" in
+	dhcp)
+		nmcli networking off
+		systemctl stop NetworkManager
+		sysctl -w net.ipv6.conf.all.disable_ipv6=1
+		sysctl -w net.ipv6.conf.default.disable_ipv6=1
+		dhcpcd "$WAN_INT"
+		;;
+	manual)
+		nmcli networking off
+		systemctl stop NetworkManager
+		sysctl -w net.ipv6.conf.all.disable_ipv6=1
+		sysctl -w net.ipv6.conf.default.disable_ipv6=1
+		ip a a $WAN_IP_MASC dev $WAN_INT
+		ip l s dev $WAN_INT up
+		ip r a default via $WAN_PE
+		resolvectl dns $WAN_INT $WAN_DNS
+		resolvectl default-route $WAN_INT yes
+		resolvectl flush-caches
+		;;
+	esac
+}
+
+######################################################################
+###  Aturar
+######################################################################
+fnc_wan_aturar() {
+	echo fnc_wan_aturar
+
+	case "$WAN_MODE" in
+	dhcp)
+		dhcpcd -k "$WAN_INT"
+		sysctl -w net.ipv6.conf.all.disable_ipv6=0
+		sysctl -w net.ipv6.conf.default.disable_ipv6=0
+		systemctl start NetworkManager
+		nmcli networking on		
+		;;
+	manual)
+
+		resolvectl revert $WAN_INT
+		ip r d default via $WAN_PE
+		ip a d $WAN_IP_MASC dev $WAN_INT
+		ip l s dev $WAN_INT down
+		sysctl -w net.ipv6.conf.all.disable_ipv6=0
+		sysctl -w net.ipv6.conf.default.disable_ipv6=0
+		systemctl start NetworkManager
+		nmcli networking on		
+		;;
+	esac
+
+}

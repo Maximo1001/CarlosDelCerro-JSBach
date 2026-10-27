@@ -1,0 +1,28 @@
+#!/bin/bash
+
+######################################################################
+###  Configurar Guardar
+######################################################################
+
+fnc_model_config_guardar_opcio1() {
+	echo fnc_model_config_guardar_opcio1
+	
+	echo ""
+	echo $VARIABLE_EXEMPLE
+}
+
+fnc_model_config_guardar_opcio2() {
+	echo fnc_model_config_guardar_opcio2
+}
+
+######################################################################
+###  Configurar Mostrar
+######################################################################
+
+fnc_model_config_mostrar_opcio1() {
+	echo fnc_model_config_mostrar_opcio1
+}
+
+fnc_model_config_mostrar_opcio2() {
+	echo fnc_model_config_mostrar_opcio2
+}

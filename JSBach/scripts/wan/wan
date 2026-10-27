@@ -1,0 +1,138 @@
+#!/bin/bash
+
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+source "$SCRIPT_DIR/../utils/variables.conf"
+
+######################################################################
+###  Configurar
+######################################################################
+
+fnc_wan_configurar() {
+	echo fnc_wan_configurar
+	MSG="Error: opcio desconeguda falta [ guardar | mostrar ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+
+	case "$OPCIO_1" in
+	guardar)
+		fnc_wan_config_guardar $@
+		;;
+	mostrar)
+		fnc_wan_config_mostrar $@
+		;;
+	*)
+		echo "$MSG"
+		;;
+	esac
+}
+
+######################################################################
+###  Configurar Guardar
+######################################################################
+
+fnc_wan_config_guardar() {
+	echo fnc_wan_config_guardar
+	MSG="Error: opcio desconeguda falta [ dhcp | manual ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+	# Fem switch IFW_PEr executar la funció que toca
+	case "$OPCIO_1" in
+	dhcp)
+		source "$DIR_WAN/wan_config"
+		fnc_wan_config_guardar_dhcp $@
+		;;
+	manual)
+		source "$DIR_WAN/wan_config"
+		fnc_wan_config_guardar_manual $@
+		;;
+	*)
+		echo "$MSG"
+		;;
+	esac
+}
+
+######################################################################
+###  Configurar Mostrar
+######################################################################
+
+fnc_wan_config_mostrar() {
+	MSG="Error: opcio desconeguda falta [ parametres | interfaces ]"
+
+	# Comprovem que hi hagi almenys un argument
+	if [ $# -lt 1 ]; then
+		echo "$MSG"
+		exit 1
+	fi
+
+	OPCIO_1=$1
+	shift
+	# Fem switch IFW_PEr executar la funció que toca
+	case "$OPCIO_1" in
+	parametres)
+		source "$DIR_WAN/wan_config"
+		fnc_wan_config_mostrar_parametres $@
+		;;
+	interfaces)
+		source "$DIR_WAN/wan_config"
+		fnc_wan_config_mostrar_interfaces $@
+		;;
+	*)
+		echo "$MSG"fnc_wan_configurar
+		;;
+	esac
+}
+
+######################################################################
+###  MAIN
+######################################################################
+
+source "$DIR_BD/lan_bd"
+fnc_lan_inici_bd
+
+source "$DIR_WAN/wan.conf"
+
+MSG="Error: opcio desconeguda falta [ iniciar | aturar | configurar | estat ]"
+
+# Comprovem que hi hagi almenys un argument
+if [ $# -lt 1 ]; then
+	echo "$MSG"
+	exit 1
+fi
+
+OPCIO_1=$1
+shift
+
+case "$OPCIO_1" in
+iniciar)
+	source "$DIR_WAN/wan_iniciar_aturar"
+	fnc_wan_iniciar $@
+	;;
+aturar)
+	source "$DIR_WAN/wan_iniciar_aturar"
+	fnc_wan_aturar $@
+	;;
+configurar)
+	fnc_wan_configurar $@
+	;;
+estat)
+	source "$DIR_WAN/wan_estat"
+	fnc_wan_estat $@
+	;;
+*)
+	echo "$MSG"
+	;;
+esac
